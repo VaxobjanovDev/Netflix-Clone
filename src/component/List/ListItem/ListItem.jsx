@@ -1,36 +1,67 @@
-import { Add, PlayArrow, Rtt, ThumbDownAltOutlined, ThumbUpAltOutlined } from '@mui/icons-material'
-import { useState } from 'react'
-import Paris from '../../../assests/paris.jpg' 
-import './ListItem.css'
+import {
+  Add,
+  PlayArrow,
+  ThumbDownAltOutlined,
+  ThumbUpAltOutlined,
+} from "@mui/icons-material";
+import axios from "axios";
+import { useEffect } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import "./ListItem.css";
 
-const ListItem = ({index}) => {
-  const [isHover, setIsHover] = useState(false)
-  const trailer = ''
-    return (
-        <div className='list-item' style={{left:isHover && index*225-50+index*2.5}} onMouseEnter={()=>setIsHover(true)} onMouseLeave={()=>setIsHover(false)}>
-          <img src={Paris} alt="sdadas" />
-          {isHover && (
-            <>
-          <video src={trailer} autoPlay={true} loop/>
+const ListItem = ({ index, item }) => {
+  const [isHover, setIsHover] = useState(false);
+  const [movie, setMovie] = useState({});
+
+  useEffect(() => {
+    const getMovies = async () => {
+      try {
+        const res = await axios.get("/movies/find/" + item, {
+          headers: {
+            token: "Bearer " + JSON.parse(localStorage.getItem("user")).accesToken,
+          },
+        });
+        setMovie(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getMovies();
+  }, [item]);
+  console.log(movie.imgSm)
+  return (
+    <Link to="/watch" state={movie}>
+    <div
+      className="list-item"
+      style={{ left: isHover && index * 250 - 50 + index * 2.5 }}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+    >
+      <img src={movie.imgSm} alt="list movie" />
+      {isHover && (
+        <>
+          <video src={movie.video} autoPlay={true} loop />
           <div className="itemInfo">
-           <div className="icons">
-           <PlayArrow className="icon"/>
-            <Add className="icon"/>
-            <ThumbUpAltOutlined className="icon"/>
-            <ThumbDownAltOutlined className="icon"/>
-           </div>
+            <div className="icons">
+              <PlayArrow className="icon" />
+              <Add className="icon" />
+              <ThumbUpAltOutlined className="icon" />
+              <ThumbDownAltOutlined className="icon" />
+            </div>
           </div>
           <div className="itemInfoTop">
-            <span>1 hour 44 mins</span>
-            <span className="limit">16+</span>
-            <span>1996</span>
+            <span>{movie.duration}</span>
+            <span className="limit">{movie.limit}+</span>
+            <span>{movie.year}</span>
           </div>
-          <div className="desc">Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus at quod soluta cum assumenda eos.</div>
-          <div className="genre">Action</div>
+          <div className="desc">{movie.desc}</div>
+          <div className="genre">{movie.genre}</div>
         </>
-        )}
-      </div>    
-    )
-}
+      )}
+    </div>
+  </Link>
+  );
+};
 
-export default ListItem
+export default ListItem;
