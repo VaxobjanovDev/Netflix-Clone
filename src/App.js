@@ -8,7 +8,6 @@ import { AuthContext } from "./authcontext/Authcontext";
 
 const App = () => {
   const { user } = useContext(AuthContext);
-  console.log(user);
   return (
     <>
       <Router>
